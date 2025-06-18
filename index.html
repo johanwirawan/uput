@@ -1,0 +1,2912 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulasi Layar Kunci iPhone</title>
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <style>
+        /* Impor font SF Pro Display dari Apple (atau fallback ke Helvetica/Arial) */
+        @font-face {
+            font-family: 'SF Pro Display';
+            src: url('https://developer.apple.com/fonts/SF-Pro-Display-Regular.otf') format('opentype');
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: 'SF Pro Display';
+            src: url('https://developer.apple.com/fonts/SF-Pro-Display-Semibold.otf') format('opentype');
+            font-weight: 600;
+        }
+        @font-face {
+            font-family: 'SF Pro Display';
+            src: url('https://developer.apple.com/fonts/SF-Pro-Display-Bold.otf') format('opentype');
+            font-weight: 700;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: white;
+    background-image: url('https://raw.githubusercontent.com/johanwirawan/Joann/refs/heads/main/IMG-20250618-WA0002.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+            margin: 0;
+            font-family: 'SF Pro Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            overflow: hidden; /* Mencegah scroll pada body */
+        }
+
+        .iphone-frame {
+            width: 320px; /* Lebar umum iPhone dalam simulasi */
+            height: 680px; /* Tinggi umum iPhone dalam simulasi */
+            background-color: #000;
+            border-radius: 40px; /* Sudut membulat bingkai */
+            box-shadow: 0 0 0 8px #333, /* Inner shadow untuk bingkai tebal */
+                       0 0 0 10px #444, /* Garis kedua */
+                       0 0 20px rgba(0, 0, 0, 0.5); /* Shadow luar */
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* Memastikan konten layar tidak keluar bingkai */
+        }
+
+        .iphone-screen {
+            width: calc(100% - 16px); /* Lebar layar dikurangi bingkai */
+            height: calc(100% - 16px); /* Tinggi layar dikurangi bingkai */
+            background-color: #000;
+            border-radius: 30px; /* Sudut membulat layar */
+            position: relative;
+            overflow: hidden;
+            background-image: url('https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/IMG-20240504-WA0051.jpg'); /* Wallpaper default lock screen */
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            /* Transisi untuk efek geser */
+            transition: transform 0.3s ease-out; /* Pastikan transisi ini ada */
+        }
+
+        .notch {
+            width: 120px;
+            height: 25px;
+            background-color: #000;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            z-index: 10;
+        }
+
+        .speaker {
+            width: 40px;
+            height: 6px;
+            background-color: #222;
+            border-radius: 3px;
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 11;
+        }
+
+        .camera {
+            width: 8px;
+            height: 8px;
+            background-color: #333;
+            border-radius: 50%;
+            position: absolute;
+            top: 8px;
+            left: calc(50% - 40px); /* Posisikan di kiri speaker */
+            z-index: 11;
+            border: 1px solid #444;
+        }
+
+        /* Gaya untuk Notch di dalam aplikasi */
+        .whatsapp-overlay .notch,
+        .whatsapp-chat-overlay .notch,
+        .gallery-overlay .notch,
+        .photo-viewer-overlay .notch,
+        .youtube-overlay .notch,
+        .notebook-overlay .notch,
+        .note-detail-overlay .notch,
+        .music-overlay .notch { /* Added for Music Overlay */
+            background-color: transparent; /* Notch di dalam aplikasi biasanya transparan atau menyatu dengan UI */
+            /* Pastikan posisi dan ukurannya sama */
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 25px;
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            z-index: 50; /* Pastikan di atas semua elemen aplikasi */
+        }
+
+        .whatsapp-overlay .speaker,
+        .whatsapp-chat-overlay .speaker,
+        .gallery-overlay .speaker,
+        .photo-viewer-overlay .speaker,
+        .youtube-overlay .speaker,
+        .notebook-overlay .speaker,
+        .note-detail-overlay .speaker,
+        .music-overlay .speaker { /* Added for Music Overlay */
+            background-color: rgba(0, 0, 0, 0.3); /* Lebih gelap untuk kontras di latar terang */
+            width: 40px;
+            height: 6px;
+            border-radius: 3px;
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 51;
+        }
+
+        .whatsapp-overlay .camera,
+        .whatsapp-chat-overlay .camera,
+        .gallery-overlay .camera,
+        .photo-viewer-overlay .camera,
+        .youtube-overlay .camera,
+        .notebook-overlay .camera,
+        .note-detail-overlay .camera,
+        .music-overlay .camera { /* Added for Music Overlay */
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 0, 0, 0.4);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            position: absolute;
+            top: 8px;
+            left: calc(50% - 40px); /* Posisikan di kiri speaker */
+            z-index: 51;
+        }
+
+
+        .time-date {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .time {
+            font-size: 70px;
+            font-weight: 600; /* Semibold */
+            letter-spacing: -2px;
+            line-height: 1;
+        }
+
+        .date {
+            font-size: 24px;
+            font-weight: 400; /* Regular */
+            margin-top: 5px;
+            text-transform: capitalize; /* Untuk nama hari/bulan */
+        }
+
+        .widgets {
+            display: flex;
+            flex-direction: column; /* Ubah menjadi kolom */
+            justify-content: center; /* Pusatkan vertikal */
+            align-items: center; /* Pusatkan horizontal */
+            flex-grow: 1; /* Biarkan mengisi ruang kosong di tengah */
+            gap: 10px;
+        }
+
+        .widget {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: 500;
+            backdrop-filter: blur(10px); /* Efek blur pada latar belakang widget */
+            -webkit-backdrop-filter: blur(10px); /* Untuk kompatibilitas Safari */
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .widget ion-icon {
+            font-size: 16px;
+        }
+
+        /* Status Bar (untuk Lock Screen dan Home Screen) */
+        .status-bar {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff; /* Default putih untuk lock screen */
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 20;
+        }
+
+        /* Modifikasi untuk status bar di home screen */
+        .home-screen .status-bar {
+            color: rgba(255, 255, 255, 0.8); /* Warna lebih transparan */
+        }
+        .home-screen .status-bar .battery-icon {
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+        .home-screen .status-bar .battery-level {
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+        .home-screen .status-bar .battery-tip {
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Status Bar untuk aplikasi (seperti WhatsApp dan Galeri) */
+        .whatsapp-overlay .status-bar,
+        .whatsapp-chat-overlay .status-bar,
+        .gallery-overlay .status-bar,
+        .notebook-overlay .status-bar,
+        .note-detail-overlay .status-bar,
+        .music-overlay .status-bar { /* Added for Music Overlay */
+            position: absolute; /* Tetapkan posisi absolut agar tetap di atas */
+            top: 15px;
+            left: 20px;
+            right: 20px;
+            color: black; /* Warna teks status bar di dalam aplikasi */
+            text-shadow: none; /* Hilangkan text-shadow */
+            background: transparent; /* Pastikan transparan */
+            z-index: 40; /* Pastikan di atas header app */
+        }
+
+        /* Status bar untuk photo viewer (warna putih) */
+        .photo-viewer-overlay .status-bar {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            right: 20px;
+            color: white; /* Warna teks status bar di photo viewer */
+            text-shadow: none;
+            background: transparent;
+            z-index: 40;
+        }
+        .photo-viewer-overlay .status-bar .battery-icon {
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+        .photo-viewer-overlay .status-bar .battery-level {
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+        .photo-viewer-overlay .status-bar .battery-tip {
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+        .photo-viewer-overlay .status-bar ion-icon {
+            color: white;
+        }
+
+        /* Status bar untuk YouTube (warna putih) */
+        .youtube-overlay .status-bar { /* Tambahkan .youtube-overlay */
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            right: 20px;
+            color: white; /* Warna teks status bar di YouTube */
+            text-shadow: none;
+            background: transparent;
+            z-index: 40;
+        }
+        .youtube-overlay .status-bar .battery-icon { /* Tambahkan .youtube-overlay */
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+        .youtube-overlay .status-bar .battery-level { /* Tambahkan .youtube-overlay */
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+        .youtube-overlay .status-bar .battery-tip { /* Tambahkan .youtube-overlay */
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+        .youtube-overlay .status-bar ion-icon { /* Tambahkan .youtube-overlay */
+            color: white;
+        }
+
+        .whatsapp-overlay .status-bar .battery-icon,
+        .whatsapp-chat-overlay .status-bar .battery-icon,
+        .gallery-overlay .status-bar .battery-icon,
+        .notebook-overlay .status-bar .battery-icon,
+        .note-detail-overlay .status-bar .battery-icon,
+        .music-overlay .status-bar .battery-icon { /* Added for Music Overlay */
+            border-color: rgba(0, 0, 0, 0.7); /* Warna border baterai hitam transparan */
+        }
+        .whatsapp-overlay .status-bar .battery-level,
+        .whatsapp-chat-overlay .status-bar .battery-level,
+        .notebook-overlay .status-bar .battery-level,
+        .note-detail-overlay .status-bar .battery-level,
+        .music-overlay .status-bar .battery-level { /* Added for Music Overlay */
+            background-color: rgba(0, 0, 0, 0.7); /* Warna level baterai hitam transparan */
+        }
+        .whatsapp-overlay .status-bar .battery-tip,
+        .whatsapp-chat-overlay .status-bar .battery-tip,
+        .notebook-overlay .status-bar .battery-tip,
+        .note-detail-overlay .status-bar .battery-tip,
+        .music-overlay .status-bar .battery-tip { /* Added for Music Overlay */
+            background-color: rgba(0, 0, 0, 0.7); /* Warna tip baterai hitam transparan */
+        }
+        .whatsapp-overlay .status-bar ion-icon,
+        .whatsapp-chat-overlay .status-bar ion-icon,
+        .gallery-overlay .status-bar ion-icon,
+        .notebook-overlay .status-bar ion-icon,
+        .note-detail-overlay .status-bar ion-icon,
+        .music-overlay .status-bar ion-icon { /* Added for Music Overlay */
+            color: black; /* Warna ikon di status bar aplikasi */
+        }
+
+        .status-bar .left {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-bar .right {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-bar ion-icon {
+            font-size: 18px;
+        }
+
+        .battery-icon {
+            width: 22px;
+            height: 10px;
+            border: 1px solid #fff;
+            border-radius: 2px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-left: 2px;
+        }
+
+        .battery-level {
+            height: 100%;
+            width: 70%; /* Contoh: 70% baterai */
+            background-color: #fff;
+            border-radius: 1px;
+        }
+
+        .battery-tip {
+            width: 2px;
+            height: 4px;
+            background-color: #fff;
+            position: absolute;
+            right: -3px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-radius: 0 1px 1px 0;
+        }
+
+        /* Home Indicator & Swipe Text */
+        .home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 130px;
+            height: 4px;
+            background-color: #fff;
+            border-radius: 2px;
+            opacity: 0.6;
+            z-index: 20;
+        }
+
+        /* Gaya khusus untuk home indicator di home screen dan aplikasi */
+        .home-screen .home-indicator,
+        .whatsapp-overlay .home-indicator,
+        .whatsapp-chat-overlay .home-indicator,
+        .gallery-overlay .home-indicator,
+        .photo-viewer-overlay .home-indicator,
+        .youtube-overlay .home-indicator,
+        .notebook-overlay .home-indicator,
+        .note-detail-overlay .home-indicator,
+        .music-overlay .home-indicator { /* Added for Music Overlay */
+            background-color: rgba(255, 255, 255, 0.4); /* Lebih pudar */
+            opacity: 1;
+        }
+
+
+        .swipe-text {
+            position: absolute;
+            bottom: 18px; /* Sesuaikan agar lebih dekat dengan home indicator */
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 12px; /* Dikecilkan */
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7); /* Sedikit lebih pudar */
+            letter-spacing: 0.5px;
+            z-index: 20;
+            animation: fadeAndMove 3s infinite ease-in-out;
+        }
+
+        @keyframes fadeAndMove {
+            0% { opacity: 0.4; transform: translateY(0); }
+            50% { opacity: 0.8; transform: translateY(-3px); } /* Bergerak sedikit ke atas */
+            100% { opacity: 0.4; transform: translateY(0); }
+        }
+
+        /* Tampilan Home Screen (setelah di-unlock) */
+        .home-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* URL wallpaper home screen */
+            background-image: url('https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/7df1077e-2a3d-4b88-a430-ef4a0dd32ff2%20(1).png');
+            background-size: cover;
+            background-position: center;
+            border-radius: 30px;
+            display: none; /* Sembunyikan secara default */
+            z-index: 5; /* Di bawah lock screen saat terkunci */
+            color: white;
+            padding: 20px;
+            box-sizing: border-box;
+            opacity: 0; /* Mulai dari transparan */
+            transition: opacity 0.3s ease-in, filter 0.3s ease-in; /* Tambah transisi untuk filter */
+            /* Perubahan untuk home screen */
+            display: flex; /* Aktifkan flexbox */
+            flex-wrap: wrap; /* Izinkan ikon untuk wrap ke baris baru */
+            justify-content: flex-start; /* Mulai ikon dari kiri atas */
+            align-content: flex-start; /* Pastikan konten mengisi dari atas */
+            gap: 20px; /* Jarak antar ikon */
+            padding-top: 50px; /* Beri ruang di atas untuk status bar */
+        }
+        .home-screen.active {
+            opacity: 1;
+            display: flex; /* Tampilkan saat aktif */
+        }
+        /* Efek blur pada home screen saat notifikasi muncul */
+        .home-screen.blurred {
+            filter: blur(5px);
+            pointer-events: none; /* Menonaktifkan klik pada elemen di belakang notifikasi */
+        }
+
+
+        /* Gaya untuk setiap ikon aplikasi */
+        .app-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 70px; /* Lebar ikon + nama */
+            text-align: center;
+            font-size: 12px;
+            font-weight: 500;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .app-icon ion-icon {
+            font-size: 48px; /* Ukuran ikon */
+            margin-bottom: 5px;
+            border-radius: 12px; /* Sudut membulat ikon */
+            padding: 5px; /* Sedikit padding agar ikon tidak terlalu mepet */
+            background-color: rgba(255, 255, 255, 0.1); /* Latar belakang transparan */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Sedikit bayangan pada ikon */
+        }
+
+        /* Warna ikon spesifik (opsional, untuk tampilan lebih mirip asli) */
+        .app-icon.whatsapp ion-icon { background-color: #25D366; }
+        .app-icon.gallery ion-icon { background-color: #6a0dad; } /* Ungu */
+        .app-icon.youtube ion-icon { background-color: #FF0000; } /* Merah */
+        /* .app-icon.spotify ion-icon { background-color: #1DB954; } */ /* Hijau Spotify */
+        /* .app-icon.email ion-icon { background-color: #007AFF; } */ /* Biru Apple */
+        .app-icon.notebook ion-icon { background-color: #FFEB3B; } /* Kuning */
+        /* .app-icon.tictactoe ion-icon { background-color: #9C27B0; } */ /* Ungu tua */
+
+        /* --- Gaya untuk Bottom Dock di Home Screen --- */
+        .bottom-dock {
+            position: absolute;
+            bottom: 15px; /* Jarak dari bawah layar */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%; /* Lebar dock */
+            height: 70px; /* Tinggi dock */
+            background-color: rgba(255, 255, 255, 0.2); /* Latar belakang transparan */
+            backdrop-filter: blur(20px); /* Efek blur kaca */
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px; /* Sudut membulat */
+            display: flex;
+            justify-content: space-around; /* Atur jarak antar ikon */
+            align-items: center;
+            padding: 0 10px; /* Padding samping */
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        .bottom-dock .app-icon {
+            width: 60px; /* Lebar ikon di dock */
+            flex-shrink: 0; /* Mencegah ikon menyusut */
+        }
+
+        .bottom-dock .app-icon ion-icon {
+            font-size: 40px; /* Ukuran ikon di dock */
+            border-radius: 12px;
+            padding: 5px;
+            /* background-color: rgba(255, 255, 255, 0.1); */ /* Biarkan warna ikon dari .app-icon default */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Warna spesifik untuk ikon di dock jika diinginkan */
+        .bottom-dock .app-icon.phone ion-icon { background-color: #007AFF; }
+        .bottom-dock .app-icon.messages ion-icon { background-color: #4CAF50; }
+        .bottom-dock .app-icon.safari ion-icon { background-color: #007AFF; } /* Contoh warna Safari */
+        .bottom-dock .app-icon.music ion-icon { background-color: #FF2D55; } /* Contoh warna Musik */
+
+
+        /* Gaya untuk WhatsApp Chat Overlay (daftar chat) */
+        .whatsapp-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #F6F6F6; /* Latar belakang daftar chat */
+            border-radius: 30px;
+            z-index: 25; /* Di atas home screen tapi di bawah notifikasi */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            color: black;
+            transform: translateX(100%); /* Mulai di luar layar */
+            transition: transform 0.3s ease-out;
+            /* Tambahan untuk background status bar yang transparan */
+            padding-top: 50px; /* Beri ruang di atas untuk status bar */
+        }
+
+        .whatsapp-overlay.active {
+            transform: translateX(0);
+        }
+
+        .whatsapp-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background-color: #F6F6F6; /* Warna header WhatsApp */
+            border-bottom: 1px solid #E0E0E0;
+            font-weight: 600;
+            z-index: 30; /* Di bawah status bar */
+            position: relative; /* Agar z-index bekerja dengan baik */
+        }
+
+        .whatsapp-header .edit-button {
+            color: #007AFF;
+            cursor: pointer;
+        }
+
+        .whatsapp-header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .whatsapp-header .new-chat-icon {
+            color: #007AFF;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .whatsapp-search {
+            padding: 10px 15px;
+            background-color: #F6F6F6;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .whatsapp-search input {
+            width: 100%;
+            padding: 8px 10px;
+            border: none;
+            border-radius: 10px;
+            background-color: #EFEFEF;
+            font-size: 14px;
+            outline: none;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .chat-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            background-color: #FFFFFF; /* Latar belakang daftar chat */
+        }
+
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            border-bottom: 0.5px solid #E0E0E0;
+            cursor: pointer;
+        }
+
+        .chat-item:active {
+            background-color: #F0F0F0; /* Efek saat disentuh */
+        }
+
+        .chat-item .profile-pic {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+            flex-shrink: 0; /* Mencegah gambar mengecil */
+        }
+
+        .chat-item .chat-details {
+            flex-grow: 1;
+        }
+
+        .chat-item .chat-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .chat-item.unread .chat-name {
+            font-weight: 700; /* Tebalkan nama jika ada pesan baru */
+        }
+
+        .chat-item .last-message {
+            color: #888;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px; /* Batasi lebar teks pesan */
+        }
+        .chat-item.unread .last-message {
+            color: black; /* Warna pesan baru */
+            font-weight: 600;
+        }
+
+        .chat-item .chat-time {
+            font-size: 12px;
+            color: #888;
+            margin-left: auto;
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 3px;
+        }
+
+        .chat-item .unread-count {
+            background-color: #25D366; /* Warna hijau WhatsApp */
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Gaya untuk WhatsApp Chat Overlay (detail chat) - sudah ada sebelumnya */
+        .whatsapp-chat-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ECE5DD; /* Warna latar belakang chat WhatsApp */
+            border-radius: 30px; /* Ikuti border-radius layar iPhone */
+            z-index: 30; /* Pastikan di atas home screen dan daftar chat */
+            display: none; /* Sembunyikan secara default */
+            flex-direction: column;
+            overflow: hidden; /* Pastikan konten tidak keluar */
+            transition: transform 0.3s ease-out; /* Transisi untuk slide-in/out */
+            transform: translateX(100%); /* Mulai di luar layar kanan */
+            /* Tambahan untuk background status bar yang transparan */
+            padding-top: 50px; /* Beri ruang di atas untuk status bar */
+        }
+
+        .whatsapp-chat-overlay.active {
+            display: flex; /* Tampilkan saat aktif */
+            transform: translateX(0); /* Geser masuk */
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background-color: #008069; /* Warna header WhatsApp */
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 1; /* Pastikan di atas pesan */
+            position: relative; /* Agar z-index bekerja */
+        }
+
+        .chat-header .back-button {
+            font-size: 24px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .chat-header .contact-info {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .chat-header .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid white; /* Border putih tipis */
+        }
+
+        .chat-header .contact-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .chat-header .header-icons {
+            display: flex; /* Tambahkan ini agar ikon sejajar */
+            align-items: center; /* Pusatkan secara vertikal */
+        }
+
+        .chat-header .header-icons ion-icon {
+            font-size: 24px;
+            margin-left: 15px;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto; /* Bisa digulir jika pesan banyak */
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 8px 12px;
+            border-radius: 10px;
+            position: relative;
+            font-size: 14px;
+            line-height: 1.4;
+            color: black; /* Default warna teks pesan */
+        }
+
+        .message p {
+            margin: 0;
+            word-wrap: break-word; /* Memastikan teks tidak keluar batas */
+        }
+
+        .message .timestamp {
+            font-size: 10px;
+            color: rgba(0, 0, 0, 0.5);
+            text-align: right;
+            margin-top: 5px;
+            display: block; /* Agar di baris baru */
+        }
+
+        .message.received {
+            background-color: #FFFFFF; /* Warna bubble pesan diterima */
+            align-self: flex-start; /* Ke kiri */
+            border-bottom-left-radius: 2px;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+
+        .message.sent {
+            background-color: #DCF8C6; /* Warna bubble pesan dikirim */
+            align-self: flex-end; /* Ke kanan */
+            border-bottom-right-radius: 2px;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+
+        /* Gaya untuk "New Messages" separator */
+        .chat-separator {
+            text-align: center;
+            margin: 20px 0 10px 0; /* Ruang di atas dan bawah */
+        }
+
+        .chat-separator .separator-text {
+            background-color: rgba(255, 255, 255, 0.8);
+            color: #888;
+            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Modifikasi gaya chat-input untuk tampilan lebih realistis */
+        .chat-input {
+            padding: 8px 15px; /* Sedikit lebih banyak padding */
+            background-color: #F0F0F0; /* Latar belakang mirip WhatsApp */
+            border-top: 1px solid #E0E0E0;
+            gap: 5px; /* Kurangi jarak antar elemen */
+            align-items: flex-end; /* Pastikan input box sejajar dengan ikon */
+        }
+
+        .chat-input .chat-input-icon {
+            font-size: 28px; /* Ukuran ikon lebih besar */
+            color: #888; /* Warna abu-abu default */
+            cursor: pointer;
+            padding-bottom: 5px; /* Geser sedikit ke bawah agar sejajar */
+        }
+        .chat-input .chat-input-icon.send-active {
+            color: #007AFF; /* Warna biru untuk tombol kirim aktif */
+        }
+
+        .chat-input .text-input-wrapper {
+            flex-grow: 1;
+            position: relative;
+            background-color: #FFFFFF;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            min-height: 38px; /* Tinggi minimum input */
+            padding: 5px 10px;
+            box-sizing: border-box;
+            border: 1px solid #E0E0E0; /* Border tipis */
+        }
+
+        .chat-input input[type="text"] {
+            flex-grow: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 16px;
+            padding: 0;
+            resize: none; /* Nonaktifkan resize default textarea jika nanti pakai textarea */
+            overflow: hidden; /* Sembunyikan scrollbar jika teks melebihi */
+            padding-right: 30px; /* Ruang untuk ikon emoji */
+            min-height: 28px; /* Tinggi minimum teks */
+        }
+        /* Jika ingin input box bisa multiline, ubah input type text menjadi textarea */
+        /* .chat-input textarea { ... } */
+
+        .chat-input .emoji-icon {
+            position: absolute;
+            right: 8px;
+            font-size: 20px;
+            color: #888;
+            cursor: pointer;
+        }
+
+        /* WhatsApp Notification */
+        .whatsapp-notification {
+            position: absolute;
+            top: 70px; /* Posisi di bawah status bar */
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px); /* Lebar notifikasi */
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 10px 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: black;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 40; /* Pastikan di atas segalanya */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            transform: translateX(-50%) translateY(-20px); /* Sedikit ke atas saat awal */
+            cursor: pointer;
+        }
+
+        .whatsapp-notification.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .whatsapp-notification .app-icon-small {
+            width: 24px;
+            height: 24px;
+            background-color: #25D366;
+            border-radius: 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        .whatsapp-notification .notification-content {
+            flex-grow: 1;
+        }
+
+        .whatsapp-notification .sender {
+            font-weight: 700;
+            display: block;
+        }
+
+        .whatsapp-notification .message-preview {
+            display: block;
+            color: #555;
+            margin-top: 2px;
+        }
+
+        .whatsapp-notification .time-received {
+            font-size: 12px;
+            color: #888;
+            white-space: nowrap;
+        }
+
+        /* Typing indicator CSS */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            background-color: #f0f0f0; /* Warna bubble mengetik */
+            border-radius: 10px;
+            padding: 8px 12px;
+            max-width: fit-content; /* Lebar sesuai konten */
+            align-self: flex-start; /* Selalu di kiri */
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #333;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+
+        .typing-indicator .dot {
+            width: 6px;
+            height: 6px;
+            background-color: #888;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-indicator .dot:nth-child(1) { animation-delay: 0s; }
+        .typing-indicator .dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-5px); }
+        }
+
+        /* Reply options for Uput */
+        .reply-options {
+            display: flex;
+            gap: 10px;
+            justify-content: center; /* Pusatkan tombol */
+            margin-top: 15px; /* Beri jarak dari pesan terakhir */
+            width: 100%; /* Pastikan mengisi lebar */
+        }
+
+        .reply-options button {
+            background-color: #007AFF; /* Warna biru iOS */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 15px;
+            cursor: pointer;
+            flex: 1; /* Agar tombol mengisi ruang yang sama */
+            max-width: 120px; /* Batasi lebar tombol */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.2s ease;
+        }
+
+        .reply-options button:hover {
+            background-color: #0056b3;
+        }
+
+        .reply-options button:active {
+            background-color: #004085;
+        }
+
+        /* Blocked contact message */
+        .blocked-message {
+            background-color: #FFE0E0; /* Warna merah muda */
+            color: #D32F2F; /* Warna teks merah */
+            border: 1px solid #FFCDD2;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            font-size: 13px;
+            margin-top: 20px;
+            align-self: center; /* Pusatkan di tengah chat */
+            width: 80%; /* Lebar notifikasi blokir */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sticker {
+            max-width: 150px; /* Ukuran stiker */
+            height: auto;
+            align-self: flex-start; /* Stiker dari Joan (received) */
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        /* --- Gaya untuk Galeri --- */
+        .gallery-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f0f0f0; /* Warna latar belakang galeri */
+            border-radius: 30px;
+            z-index: 25; /* Sama seperti WhatsApp list */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            color: black;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-out;
+            padding-top: 50px; /* Ruang untuk status bar */
+        }
+
+        .gallery-overlay.active {
+            transform: translateX(0);
+        }
+
+        .gallery-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Change to space-between to push elements to edges */
+            padding: 10px 15px;
+            background-color: #f0f0f0; /* Warna header galeri, serasi dengan background */
+            border-bottom: 1px solid #E0E0E0;
+            font-weight: 600;
+            z-index: 30;
+            position: relative;
+        }
+
+        /* New style for the "Albums" text alongside the back button */
+        .gallery-header .gallery-back-albums {
+            display: flex; /* Use flex to align icon and text */
+            align-items: center;
+            gap: 3px; /* Small gap between icon and text */
+            color: #007AFF; /* iOS blue for interactive text */
+            font-size: 16px; /* Font size for Albums text */
+            font-weight: 400; /* Regular weight like native iOS */
+            cursor: pointer;
+        }
+
+        .gallery-header .back-to-home-button {
+            font-size: 24px; /* Icon size */
+            color: #007AFF;
+            cursor: pointer;
+        }
+
+        .gallery-header h2 {
+            margin: 0;
+            font-size: 17px; /* Adjusted size for Recents */
+            font-weight: 700;
+            flex-grow: 1; /* Allow Recents to take available space */
+            text-align: center; /* Center "Recents" */
+            padding-top: 0; /* Reset padding-top */
+        }
+
+        .gallery-header .add-photo-icon {
+            color: #007AFF;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .gallery-grid {
+            display: grid;
+            /* Change to 2 columns */
+            grid-template-columns: repeat(2, 1fr);
+            /* Make rows auto-sized, ensuring 3 rows for 6 photos */
+            grid-template-rows: repeat(3, minmax(0, 1fr)); /* 3 rows */
+            gap: 1px; /* Jarak antar gambar yang sangat tipis untuk efek grid */
+            flex-grow: 1;
+            overflow-y: auto;
+            background-color: #000; /* Latar belakang hitam untuk grid foto */
+            padding-bottom: 70px; /* Tambahkan padding agar home indicator tidak menutupi foto terakhir */
+        }
+
+        .gallery-item {
+            width: 100%;
+            /* Keep aspect-ratio to ensure square photos */
+            aspect-ratio: 1 / 1;
+            object-fit: cover; /* Pastikan foto mengisi area tanpa terdistorsi */
+            cursor: pointer;
+            display: block; /* Agar tidak ada spasi di bawah gambar */
+        }
+
+        /* Gaya untuk tampilan foto tunggal */
+        .photo-viewer-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black; /* Latar belakang hitam untuk viewer foto */
+            border-radius: 30px;
+            z-index: 35; /* Di atas galeri, di bawah status bar aplikasi */
+            display: none;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-out;
+            padding-top: 50px; /* Ruang untuk status bar */
+        }
+
+        .photo-viewer-overlay.active {
+            transform: translateX(0);
+            display: flex;
+        }
+
+        .photo-viewer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background-color: rgba(0, 0, 0, 0.7); /* Header transparan gelap */
+            color: white;
+            font-weight: 600;
+            z-index: 1;
+            position: relative;
+        }
+
+        .photo-viewer-header .back-button {
+            color: #007AFF;
+            cursor: pointer;
+            font-size: 24px;
+        }
+
+        .photo-viewer-header .options-icon {
+            color: #007AFF;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .photo-display {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .photo-display img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; /* Agar gambar tidak terpotong */
+        }
+
+        .photo-viewer-footer {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 0;
+            background-color: rgba(0, 0, 0, 0.7); /* Footer transparan gelap */
+            color: white;
+            z-index: 1;
+        }
+
+        .photo-viewer-footer ion-icon {
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        /* --- Gaya untuk YouTube Overlay --- */
+        .youtube-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #121212; /* Warna latar belakang YouTube gelap */
+            border-radius: 30px;
+            z-index: 25; /* Sama seperti WhatsApp list */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            color: white;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-out;
+            padding-top: 50px; /* Ruang untuk status bar */
+        }
+
+        .youtube-overlay.active {
+            transform: translateX(0);
+        }
+
+        .youtube-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background-color: #212121; /* Warna header YouTube */
+            border-bottom: 1px solid #333;
+            z-index: 1;
+            position: relative;
+        }
+
+        .youtube-header .back-to-home-button {
+            font-size: 24px;
+            color: white; /* Ikon kembali berwarna putih */
+            cursor: pointer;
+        }
+
+        .youtube-header .youtube-logo {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .youtube-header .youtube-logo ion-icon {
+            font-size: 28px;
+            color: #FF0000; /* Warna ikon YouTube merah */
+        }
+
+        .youtube-header .header-icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .youtube-header .header-icons ion-icon {
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .youtube-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .video-card {
+            background-color: #212121;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .video-card .video-thumbnail-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            background-color: black; /* Fallback for when video hasn't loaded */
+        }
+
+        .video-card .video-thumbnail-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .video-info {
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .channel-profile-pic {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .video-details {
+            flex-grow: 1;
+        }
+
+        .video-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            line-height: 1.3;
+        }
+
+        .video-meta {
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        .youtube-bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: #212121;
+            border-top: 1px solid #333;
+            padding: 5px 0;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 1;
+        }
+
+        .youtube-bottom-nav .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #aaa;
+            font-size: 10px;
+            gap: 3px;
+            cursor: pointer;
+        }
+
+        .youtube-bottom-nav .nav-item ion-icon {
+            font-size: 22px;
+        }
+
+        .youtube-bottom-nav .nav-item.active {
+            color: white;
+        }
+
+        /* --- Gaya untuk Notebook Overlay --- */
+        .notebook-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f8f8f8; /* Warna latar belakang notes */
+            border-radius: 30px;
+            z-index: 25; /* Sama seperti WhatsApp list dan Gallery */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            color: black;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-out;
+            padding-top: 50px; /* Ruang untuk status bar */
+        }
+
+        .notebook-overlay.active {
+            transform: translateX(0);
+        }
+
+        .notebook-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background-color: #f8f8f8;
+            border-bottom: 1px solid #E0E0E0;
+            font-weight: 600;
+            z-index: 30;
+            position: relative;
+        }
+
+        .notebook-header .back-to-home-button {
+            font-size: 24px;
+            color: #007AFF;
+            cursor: pointer;
+        }
+
+        .notebook-header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .notebook-header .new-note-icon {
+            color: #007AFF;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .notebook-search {
+            padding: 10px 15px;
+            background-color: #f8f8f8;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .notebook-search input {
+            width: 100%;
+            padding: 8px 10px;
+            border: none;
+            border-radius: 10px;
+            background-color: #EFEFEF;
+            font-size: 14px;
+            outline: none;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .note-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            background-color: #FFFFFF;
+            padding: 0 15px;
+        }
+
+        .note-item {
+            padding: 10px 0;
+            border-bottom: 0.5px solid #E0E0E0;
+            cursor: pointer;
+        }
+
+        .note-item:last-child {
+            border-bottom: none; /* No border for the last item */
+        }
+
+        .note-item .note-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 3px;
+        }
+
+        .note-item .note-preview {
+            color: #888;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .note-item .note-date {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        /* Gaya untuk Note Detail Overlay */
+        .note-detail-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #FFFFFF; /* Latar belakang detail catatan */
+            border-radius: 30px;
+            z-index: 30; /* Di atas Notebook list */
+            display: none; /* Sembunyikan secara default */
+            flex-direction: column;
+            overflow: hidden;
+            color: black;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-out;
+            padding-top: 50px; /* Ruang untuk status bar */
+        }
+
+        .note-detail-overlay.active {
+            transform: translateX(0);
+            display: flex;
+        }
+
+        .note-detail-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background-color: #f8f8f8;
+            border-bottom: 1px solid #E0E0E0;
+            font-weight: 600;
+            z-index: 1;
+            position: relative;
+        }
+
+        .note-detail-header .back-to-note-list-button {
+            font-size: 24px;
+            color: #007AFF;
+            cursor: pointer;
+        }
+
+        .note-detail-header .header-title {
+            font-size: 17px; /* Ukuran judul di header */
+            font-weight: 700;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .note-detail-header .note-options-icon {
+            font-size: 24px;
+            color: #007AFF;
+            cursor: pointer;
+        }
+
+        .note-detail-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 15px;
+            line-height: 1.5;
+        }
+
+        .note-detail-content h3 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .note-detail-content p {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        /* --- Gaya untuk Aplikasi Musik --- */
+        .music-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f2f2f7; /* Background abu-abu muda ala iOS */
+            border-radius: 30px;
+            z-index: 25;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            color: black;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-out;
+            padding-top: 50px; /* Ruang untuk status bar */
+        }
+
+        .music-overlay.active {
+            transform: translateX(0);
+        }
+
+        .music-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background-color: #f2f2f7;
+            border-bottom: 0.5px solid #e0e0e0; /* Garis tipis */
+            font-weight: 600;
+            z-index: 30;
+            position: relative;
+        }
+
+        .music-header .back-to-home-button {
+            font-size: 24px;
+            color: #007AFF;
+            cursor: pointer;
+        }
+
+        .music-header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .music-header .options-icon {
+            color: #007AFF;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .music-list-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            background-color: #FFFFFF;
+            padding-bottom: 80px; /* Ruang untuk now playing bar */
+        }
+
+        .music-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 0.5px solid #e9e9eb;
+            cursor: pointer;
+            transition: background-color 0.1s ease-in-out;
+        }
+
+        .music-item:active {
+            background-color: #f0f0f0;
+        }
+
+        .music-item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            margin-right: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            object-fit: cover;
+        }
+
+        .music-details-text {
+            flex-grow: 1;
+        }
+
+        .music-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+        }
+
+        .music-artist {
+            font-size: 14px;
+            color: #8e8e93;
+            margin-top: 2px;
+        }
+
+        .now-playing-bar {
+            position: sticky;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #f7f7f7;
+            border-top: 0.5px solid #e0e0e0;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 20;
+        }
+
+        .now-playing-bar img {
+            width: 45px;
+            height: 45px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            object-fit: cover;
+        }
+
+        .now-playing-info {
+            flex-grow: 1;
+        }
+
+        .now-playing-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #000;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .now-playing-artist {
+            font-size: 12px;
+            color: #8e8e93;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .now-playing-controls button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #8e8e93;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .now-playing-controls button:active {
+            color: #007aff;
+        }
+
+        /* Ikon sederhana (bisa diganti dengan SVG atau ikon font) */
+        .play-icon::before { content: '▶︎'; }
+        .pause-icon::before { content: '⏸︎'; }
+        .next-icon::before { content: '⏭︎'; }
+
+        /* Styling untuk audio element yang tersembunyi */
+        .hidden-audio {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="iphone-frame">
+        <div class="iphone-screen" id="lockScreen">
+            <div class="notch">
+                <div class="speaker"></div>
+                <div class="camera"></div>
+            </div>
+
+            <div class="time-date">
+                <div class="time" id="currentTime"></div>
+                <div class="date" id="currentDate"></div>
+            </div>
+
+            <div class="widgets">
+                <div class="widget">
+                    <ion-icon name="partly-sunny-outline"></ion-icon>
+                    <span>26°C Lampung</span>
+                </div>
+                <div class="widget">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    <span>Hari Ini</span>
+                </div>
+            </div>
+
+            <div class="swipe-text">Geser untuk Membuka</div>
+            <div class="home-indicator"></div>
+        </div>
+
+        <div class="home-screen" id="homeScreen" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; justify-items: center;">
+            <div class="status-bar">
+                <div class="left">
+                    <span class="time-status"></span> </div>
+                <div class="right">
+                    <ion-icon name="wifi"></ion-icon>
+                    <div class="battery-icon">
+                        <div class="battery-level"></div>
+                        <div class="battery-tip"></div>
+                    </div>
+                    <span>70%</span>
+                </div>
+            </div>
+
+            <div class="notch">
+                <div class="speaker"></div>
+                <div class="camera"></div>
+            </div>
+
+            <div class="app-icon whatsapp" id="whatsappAppIcon">
+                <ion-icon name="logo-whatsapp"></ion-icon>
+                <span>WhatsApp</span>
+            </div>
+            <div class="app-icon gallery" id="galleryAppIcon">
+                <ion-icon name="images-outline"></ion-icon>
+                <span>Galeri</span>
+            </div>
+            <div class="app-icon youtube">
+                <ion-icon name="logo-youtube"></ion-icon>
+                <span>YouTube</span>
+            </div>
+
+            <div class="app-icon notebook" id="notebookAppIcon">
+                <ion-icon name="book-outline"></ion-icon>
+                <span>Notebook</span>
+            </div>
+
+
+            <div class="bottom-dock">
+                <div class="app-icon music" id="musicAppIcon">
+                    <ion-icon name="musical-notes-outline"></ion-icon>
+                    <span>Musik</span>
+                </div>
+            </div>
+
+            <div class="home-indicator"></div>
+        </div>
+
+        <div class="whatsapp-overlay" id="whatsappList">
+            <div class="notch">
+                <div class="speaker"></div>
+                <div class="camera"></div>
+            </div>
+            <div class="status-bar">
+                <div class="left">
+                    <span class="time-status"></span> </div>
+                <div class="right">
+                    <ion-icon name="wifi"></ion-icon>
+                    <div class="battery-icon">
+                        <div class="battery-level"></div>
+                        <div class="battery-tip"></div>
+                    </div>
+                    <span>70%</span>
+                </div>
+            </div>
+            <div class="whatsapp-header">
+                <span class="edit-button">Edit</span>
+                <h2>Chats</h2>
+                <ion-icon name="create-outline" class="new-chat-icon"></ion-icon>
+            </div>
+            <div class="whatsapp-search">
+                <input type="text" placeholder="Search">
+            </div>
+            <div class="chat-list">
+                <div class="chat-item unread" data-contact="Joan">
+                    <img src="https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/6da70b3f-5762-444c-aef5-c5fbbcef0ea6.png" alt="Joan" class="profile-pic">
+                    <div class="chat-details">
+                        <div class="chat-name">Joan</div>
+                        <div class="last-message">Halo uput</div>
+                    </div>
+                    <div class="chat-time">
+                        <span>Sekarang</span>
+                        <span class="unread-count">1</span>
+                    </div>
+                </div>
+                <div class="chat-item" data-contact="Mama">
+                    <img src="https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/images%20(15).jpeg" alt="Mama" class="profile-pic">
+                    <div class="chat-details">
+                        <div class="chat-name">Mama</div>
+                        <div class="last-message">Sudah makan?</div>
+                    </div>
+                    <div class="chat-time">
+                        <span>Kemarin</span>
+                    </div>
+                </div>
+                <div class="chat-item" data-contact="Grup Kampus">
+                    <img src="https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/images%20(13).jpeg" alt="Grup Kampus" class="profile-pic">
+                    <div class="chat-details">
+                        <div class="chat-name">Grup Universitas Aisyah Pringsewu</div>
+                        <div class="last-message">Putri : gais gimana?</div>
+                    </div>
+                    <div class="chat-time">
+                        <span>Kemarin</span>
+                    </div>
+                </div>
+                <div class="chat-item" data-contact="Intan">
+                    <img src="https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/images%20(14).jpeg" alt="Intan" class="profile-pic">
+                    <div class="chat-details">
+                        <div class="chat-name">Intan</div>
+                        <div class="last-message">assalamuallaikum</div>
+                    </div>
+                    <div class="chat-time">
+                        <span>Kemarin</span>
+                    </div>
+                </div>
+            </div>
+            <div class="home-indicator home-screen-indicator"></div>
+        </div>
+
+
+        <div class="whatsapp-chat-overlay" id="whatsappChat">
+            <div class="notch">
+                <div class="speaker"></div>
+                <div class="camera"></div>
+            </div>
+            <div class="status-bar">
+                <div class="left">
+                    <span class="time-status"></span> </div>
+                <div class="right">
+                    <ion-icon name="wifi"></ion-icon>
+                    <div class="battery-icon">
+                        <div class="battery-level"></div>
+                        <div class="battery-tip"></div>
+                    </div>
+                    <span>70%</span>
+                </div>
+            </div>
+            <div class="chat-header">
+                <ion-icon name="chevron-back-outline" class="back-to-list-button"></ion-icon>
+                <div class="contact-info">
+                    <img src="" alt="Profil Kontak" class="profile-pic" id="chatHeaderProfilePic">
+                    <span class="contact-name" id="chatHeaderContactName"></span>
+                </div>
+                <div class="header-icons">
+                    <ion-icon name="videocam-outline"></ion-icon>
+                    <ion-icon name="call-outline"></ion-icon>
+                </div>
+            </div>
+            <div class="chat-messages" id="joanChatMessages">
+                <div class="chat-separator">
+                    <span class="separator-text">New Messages</span>
+                </div>
+                <div class="message received" id="joanInitialMessage">
+                    <p>Halo uput</p>
+                    <span class="timestamp">Sekarang</span>
+                </div>
+                </div>
+            <div class="chat-input" id="chatInputArea">
+                <ion-icon name="happy-outline" class="chat-input-icon"></ion-icon> <ion-icon name="add-circle-outline" class="chat-input-icon"></ion-icon> <div class="text-input-wrapper">
+                    <input type="text" placeholder="Pesan" id="chatInputBox" disabled> </div>
+                <ion-icon name="mic-outline" class="chat-input-icon"></ion-icon> </div>
+            <div class="home-indicator home-screen-indicator"></div>
+        </div>
+
+        <div class="gallery-overlay" id="galleryOverlay">
+            <div class="notch">
+                <div class="speaker"></div>
+                <div class="camera"></div>
+            </div>
+            <div class="status-bar">
+                <div class="left">
+                    <span class="time-status"></span> </div>
+                <div class="right">
+                    <ion-icon name="wifi"></ion-icon>
+                    <div class="battery-icon">
+                        <div class="battery-level"></div>
+                        <div class="battery-tip"></div>
+                    </div>
+                    <span>70%</span>
+                </div>
+            </div>
+            <div class="gallery-header">
+                <span class="gallery-back-albums">
+                    <ion-icon name="chevron-back-outline" class="back-to-home-button"></ion-icon>
+                    Albums
+                </span>
+                <h2>Recents</h2>
+                <ion-icon name="add-circle-outline" class="add-photo-icon"></ion-icon>
+            </div>
+            <div class="gallery-grid" id="galleryGrid">
+                </div>
+            <div class="home-indicator home-screen-indicator"></div>
+        </div>
+
+        <div class="photo-viewer-overlay" id="photoViewerOverlay">
+            <div class="notch">
+                <div class="speaker"></div>
+                <div class="camera"></div>
+            </div>
+            <div class="status-bar">
+                <div class="left">
+                    <span class="time-status"></span> </div>
+                <div class="right">
+                    <ion-icon name="wifi"></ion-icon>
+                    <div class="battery-icon">
+                        <div class="battery-level"></div>
+                        <div class="battery-tip"></div>
+                    </div>
+                    <span>70%</span>
+                </div>
+            </div>
+            <div class="photo-viewer-header">
+                <ion-icon name="chevron-back-outline" class="back-to-gallery-button"></ion-icon>
+                <span class="photo-timestamp"></span>
+                <ion-icon name="ellipsis-horizontal-circle-outline" class="options-icon"></ion-icon>
+            </div>
+            <div class="photo-display">
+                <img id="currentPhoto" src="" alt="Selected Photo">
+            </div>
+            <div class="photo-viewer-footer">
+                <ion-icon name="share-outline"></ion-icon>
+                <ion-icon name="heart-outline"></ion-icon>
+                <ion-icon name="trash-outline"></ion-icon>
+            </div>
+            <div class="home-indicator home-screen-indicator"></div>
+        </div>
+
+        <div class="youtube-overlay" id="youtubeOverlay">
+            <div class="notch">
+                <div class="speaker"></div>
+                <div class="camera"></div>
+            </div>
+            <div class="status-bar">
+                <div class="left">
+                    <span class="time-status"></span>
+                </div>
+                <div class="right">
+                    <ion-icon name="wifi"></ion-icon>
+                    <div class="battery-icon">
+                        <div class="battery-level"></div>
+                        <div class="battery-tip"></div>
+                    </div>
+                    <span>70%</span>
+                </div>
+            </div>
+            <div class="youtube-header">
+                <ion-icon name="chevron-back-outline" class="back-to-home-button"></ion-icon>
+                <div class="youtube-logo">
+                    <ion-icon name="logo-youtube"></ion-icon>
+                    <span>YouTube</span>
+                </div>
+                <div class="header-icons">
+                    <ion-icon name="cast-outline"></ion-icon>
+                    <ion-icon name="notifications-outline"></ion-icon>
+                    <ion-icon name="search-outline"></ion-icon>
+                    <ion-icon name="person-circle-outline"></ion-icon>
+                </div>
+            </div>
+            <div class="youtube-content">
+                <div class="video-card">
+                    <div class="video-thumbnail-container">
+                        <iframe src="https://www.youtube.com/embed/drYfLjq8F68" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    </div>
+                    <div class="video-info">
+                        <img src="https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/6da70b3f-5762-444c-aef5-c5fbbcef0ea6.png" alt="Profil Channel" class="channel-profile-pic">
+                        <div class="video-details">
+                            <div class="video-title">Belajar HTML Lengkap untuk Pemula</div>
+                            <div class="video-meta">Web Dev ID • 2 juta tayangan • 3 bulan yang lalu</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="video-card">
+                    <div class="video-thumbnail-container">
+                        <iframe src="https://www.youtube.com/embed/Rl1lF06okkI" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    </div>
+                    <div class="video-info">
+                        <img src="https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/images%20(15).jpeg" alt="Profil Channel" class="channel-profile-pic">
+                        <div class="video-details">
+                            <div class="video-title">Tutorial CSS: Membangun Desain Responsif</div>
+                            <div class="video-meta">Desain Keren • 800 rb tayangan • 1 tahun yang lalu</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="video-card">
+                    <div class="video-thumbnail-container">
+                        <iframe src="https://www.youtube.com/embed/MMJeTEnR1ow" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    </div>
+                    <div class="video-info">
+                        <img src="https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/images%20(13).jpeg" alt="Profil Channel" class="channel-profile-pic">
+                        <div class="video-details">
+                            <div class="video-title">JavaScript Dasar: Variabel dan Tipe Data</div>
+                            <div class="video-meta">Ngoding Santai • 1.5 juta tayangan • 6 bulan yang lalu</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="youtube-bottom-nav">
+                <div class="nav-item active">
+                    <ion-icon name="home-outline"></ion-icon>
+                    <span>Home</span>
+                </div>
+                <div class="nav-item">
+                    <ion-icon name="flash-outline"></ion-icon>
+                    <span>Shorts</span>
+                </div>
+                <div class="nav-item">
+                    <ion-icon name="add-circle-outline"></ion-icon>
+                    <span>Create</span>
+                </div>
+                <div class="nav-item">
+                    <ion-icon name="play-circle-outline"></ion-icon>
+                    <span>Subscriptions</span>
+                </div>
+                <div class="nav-item">
+                    <ion-icon name="library-outline"></ion-icon>
+                    <span>Library</span>
+                </div>
+            </div>
+            <div class="home-indicator home-screen-indicator"></div>
+        </div>
+
+        <div class="notebook-overlay" id="notebookOverlay">
+            <div class="notch">
+                <div class="speaker"></div>
+                <div class="camera"></div>
+            </div>
+            <div class="status-bar">
+                <div class="left">
+                    <span class="time-status"></span>
+                </div>
+                <div class="right">
+                    <ion-icon name="wifi"></ion-icon>
+                    <div class="battery-icon">
+                        <div class="battery-level"></div>
+                        <div class="battery-tip"></div>
+                    </div>
+                    <span>70%</span>
+                </div>
+            </div>
+            <div class="notebook-header">
+                <ion-icon name="chevron-back-outline" class="back-to-home-button"></ion-icon>
+                <h2>Notebook</h2>
+                <ion-icon name="create-outline" class="new-note-icon"></ion-icon>
+            </div>
+            <div class="notebook-search">
+                <input type="text" placeholder="Search">
+            </div>
+            <div class="note-list" id="noteList">
+                </div>
+            <div class="home-indicator home-screen-indicator"></div>
+        </div>
+
+        <div class="note-detail-overlay" id="noteDetailOverlay">
+            <div class="notch">
+                <div class="speaker"></div>
+                <div class="camera"></div>
+            </div>
+            <div class="status-bar">
+                <div class="left">
+                    <span class="time-status"></span>
+                </div>
+                <div class="right">
+                    <ion-icon name="wifi"></ion-icon>
+                    <div class="battery-icon">
+                        <div class="battery-level"></div>
+                        <div class="battery-tip"></div>
+                    </div>
+                    <span>70%</span>
+                </div>
+            </div>
+            <div class="note-detail-header">
+                <ion-icon name="chevron-back-outline" class="back-to-note-list-button"></ion-icon>
+                <span class="header-title" id="noteDetailTitleHeader"></span>
+                <ion-icon name="ellipsis-horizontal-circle-outline" class="note-options-icon"></ion-icon>
+            </div>
+            <div class="note-detail-content">
+                <h3 id="noteDetailTitle"></h3>
+                <p id="noteDetailContent"></p>
+            </div>
+            <div class="home-indicator home-screen-indicator"></div>
+        </div>
+
+        <div class="music-overlay" id="musicOverlay">
+            <div class="notch">
+                <div class="speaker"></div>
+                <div class="camera"></div>
+            </div>
+            <div class="status-bar">
+                <div class="left">
+                    <span class="time-status"></span>
+                </div>
+                <div class="right">
+                    <ion-icon name="wifi"></ion-icon>
+                    <div class="battery-icon">
+                        <div class="battery-level"></div>
+                        <div class="battery-tip"></div>
+                    </div>
+                    <span>70%</span>
+                </div>
+            </div>
+            <div class="music-header">
+                <ion-icon name="chevron-back-outline" class="back-to-home-button"></ion-icon>
+                <h2>Daftar Putar</h2>
+                <ion-icon name="ellipsis-horizontal-circle-outline" class="options-icon"></ion-icon>
+            </div>
+            <div class="music-list-content" id="musicListContent">
+                </div>
+            <div class="now-playing-bar">
+                <img id="nowPlayingAlbumArt" src="https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/images%20(16).jpeg" alt="Album Art">
+                <div class="now-playing-info">
+                    <div class="now-playing-title" id="nowPlayingTitle">Tidak Ada Musik Diputar</div>
+                    <div class="now-playing-artist" id="nowPlayingArtist"></div>
+                </div>
+                <div class="now-playing-controls">
+                    <button id="playPauseButton" class="play-icon"></button>
+                </div>
+                <audio id="audioPlayer" class="hidden-audio" controls></audio>
+            </div>
+            <div class="home-indicator home-screen-indicator"></div>
+        </div>
+
+
+        <div class="whatsapp-notification" id="waNotification">
+            <div class="app-icon-small">
+                <ion-icon name="logo-whatsapp"></ion-icon>
+            </div>
+            <div class="notification-content">
+                <span class="sender">Joan</span>
+                <span class="message-preview">Halo uput</span>
+            </div>
+            <div class="time-received">Sekarang</div>
+        </div>
+        <audio id="notificationSound" src="https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/main/Nada%20Dering%20Ringtone%20Pesan%20Iphone%2012%20Keren..mp3" preload="auto"></audio>
+
+    </div>
+
+    <script>
+        function updateTimeAndDate() {
+            const now = new Date();
+            const timeOptionsStatusBar = { hour: '2-digit', minute: '2-digit', hour12: false };
+            const timeOptionsMessage = { hour: '2-digit', minute: '2-digit' };
+            const dateOptions = { weekday: 'long', month: 'long', day: 'numeric' };
+
+            const timeStringStatusBar = now.toLocaleTimeString('id-ID', timeOptionsStatusBar);
+            const dateString = now.toLocaleDateString('id-ID', dateOptions);
+            const timeStringMessage = now.toLocaleTimeString('id-ID', timeOptionsMessage);
+
+            const currentTimeElement = document.getElementById('currentTime');
+            if (currentTimeElement) {
+                currentTimeElement.textContent = timeStringStatusBar;
+            }
+
+            const currentDateElement = document.getElementById('currentDate');
+            if (currentDateElement) {
+                currentDateElement.textContent = dateString;
+            }
+
+            const statusBarTimeElements = document.querySelectorAll('.status-bar .time-status');
+            statusBarTimeElements.forEach(element => {
+                element.textContent = timeStringStatusBar;
+            });
+
+            const notificationTime = document.querySelector('#waNotification .time-received');
+            if (notificationTime) {
+                 notificationTime.textContent = timeStringMessage;
+            }
+
+            const joanInitialMessageTimestamp = document.querySelector('#joanInitialMessage .timestamp');
+            if (joanInitialMessageTimestamp) {
+                joanInitialMessageTimestamp.textContent = timeStringMessage;
+            }
+
+            const joanChatItemTime = document.querySelector('.chat-item[data-contact="Joan"] .chat-time span:first-child');
+            if (joanChatItemTime) {
+                joanChatItemTime.textContent = timeStringMessage;
+            }
+
+            // Update timestamp di photo viewer
+            const photoTimestampElement = document.querySelector('#photoViewerOverlay .photo-timestamp');
+            if (photoTimestampElement && photoViewerOverlay.classList.contains('active')) {
+                 photoTimestampElement.textContent = now.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+            }
+        }
+
+        const lockScreen = document.getElementById('lockScreen');
+        const homeScreen = document.getElementById('homeScreen');
+        const whatsappAppIcon = document.getElementById('whatsappAppIcon');
+        const whatsappList = document.getElementById('whatsappList');
+        const whatsappChat = document.getElementById('whatsappChat');
+        const waNotification = document.getElementById('waNotification');
+        const backToListButton = document.querySelector('#whatsappChat .back-to-list-button');
+        const joanChatItem = document.querySelector('.chat-item[data-contact="Joan"]');
+        const joanChatMessages = document.getElementById('joanChatMessages');
+        const chatInputArea = document.getElementById('chatInputArea');
+        const notificationSound = document.getElementById('notificationSound'); // Get the audio element
+        const chatHeaderProfilePic = document.getElementById('chatHeaderProfilePic');
+        const chatHeaderContactName = document.getElementById('chatHeaderContactName');
+
+        // Gallery Elements
+        const galleryAppIcon = document.getElementById('galleryAppIcon');
+        const galleryOverlay = document.getElementById('galleryOverlay');
+        const galleryGrid = document.getElementById('galleryGrid');
+        const galleryBackToHomeButton = document.querySelector('#galleryOverlay .back-to-home-button');
+        const photoViewerOverlay = document.getElementById('photoViewerOverlay');
+        const currentPhoto = document.getElementById('currentPhoto');
+        const photoViewerBackToGalleryButton = document.querySelector('#photoViewerOverlay .back-to-gallery-button');
+        const loveButton = document.querySelector('#photoViewerOverlay .photo-viewer-footer ion-icon:nth-child(2)'); // Select the heart icon
+
+        // Notebook Elements
+        const notebookAppIcon = document.getElementById('notebookAppIcon');
+        const notebookOverlay = document.getElementById('notebookOverlay');
+        const notebookList = document.getElementById('noteList');
+        const notebookBackToHomeButton = document.querySelector('#notebookOverlay .back-to-home-button');
+        const noteDetailOverlay = document.getElementById('noteDetailOverlay');
+        const noteDetailTitle = document.getElementById('noteDetailTitle');
+        const noteDetailTitleHeader = document.getElementById('noteDetailTitleHeader');
+        const noteDetailContent = document.getElementById('noteDetailContent');
+        const backToNoteListButton = document.querySelector('#noteDetailOverlay .back-to-note-list-button');
+
+        // Music Elements (di bottom dock Home Screen)
+        const musicAppIcon = document.getElementById('musicAppIcon'); // Get the music app icon
+
+        // YouTube Elements
+        const youtubeAppIcon = document.querySelector('.app-icon.youtube'); // Select by class
+        const youtubeOverlay = document.getElementById('youtubeOverlay');
+        const youtubeBackToHomeButton = document.querySelector('#youtubeOverlay .back-to-home-button');
+
+        // Music App Elements
+        const musicOverlay = document.getElementById('musicOverlay');
+        const musicBackToHomeButton = document.querySelector('#musicOverlay .back-to-home-button');
+        const musicListContent = document.getElementById('musicListContent');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const nowPlayingTitle = document.getElementById('nowPlayingTitle');
+        const nowPlayingArtist = document.getElementById('nowPlayingArtist');
+        const nowPlayingAlbumArt = document.getElementById('nowPlayingAlbumArt');
+        const playPauseButton = document.getElementById('playPauseButton');
+        let currentPlayingIndex = -1; // To keep track of the currently playing song index
+
+        const musicData = [
+            {
+                title: "Until I Found You",
+                artist: "Stephen Sanchez",
+                src: "https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/main/Until%20I%20Found%20You.mp3",
+                albumArt: "https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/images%20(16).jpeg"
+            },
+            {
+                title: "I Love You So",
+                artist: "The Walters",
+                src: "https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/main/I%20Love%20You%20So%20-%20The%20Walters.mp3",
+                albumArt: "https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/images%20(18).jpeg"
+            },
+            {
+                title: "Here With Me",
+                artist: "d4vd",
+                src: "https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/main/d4vd%20-%20Here%20With%20Me.mp3",
+                albumArt: "https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/images%20(17).jpeg"
+            }
+        ];
+
+
+        const photos = [
+            "https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/IMG-20250616-WA0015.jpg",
+            "https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/1748084849861.jpg",
+            "https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/Screenshot_20250524_180657_Instagram.jpg",
+            "https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/IMG-20240504-WA0058.jpg",
+            "https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/Screenshot_20250618_083414_Instagram.jpg",
+            "https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/Screenshot_20250618_083422_Instagram.jpg"
+            // Tambahkan URL gambar lain di sini
+        ];
+
+        // Notebook Notes Data
+        const notes = [
+            {
+                title: "Takdir",
+                content: "porsi manusia berbeda beda, beruntung nya beda, sedihnya beda, cobaan nya beda, masalahnya pun beda, tidak ada berat maupun ringan, semuanya dipikul sesuai pundaknya masing masing, ada yang sudah sampai, ada yang baru mulai, ada yang sudah berhasil, dan ada juga yang sedang menunggu hasil, semoga kita diberi jalan yang terbaik di jalan masing masing",
+                date: "18 Jun 2025"
+            },
+            {
+                title: "KAMU KUAT!",
+                content: '-entah seberat apapun beban dipundakmu, entah seberisik apa isi kepalamu. semoga tuhan mampukan dan mudahkan disetiap prosesmu:), semangat uput:D',
+                date: "18 Jun 2025"
+            }
+        ];
+
+        // Definisi profil gambar untuk setiap kontak
+        const contactProfiles = {
+            "Joan": "https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/6da70b3f-5762-444c-aef5-c5fbbcef0ea6.png",
+            "Mama": "https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/images%20(15).jpeg",
+            "Grup Kampus": "https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/images%20(13).jpeg",
+            "Intan": "https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/images%20(14).jpeg"
+        };
+
+
+        let currentPhotoIndex = 0;
+        let startX = 0;
+        let isDragging = false;
+        let joanConversationCompleted = false; // Flag untuk mencegah percakapan berulang
+        let isLoved = false;
+
+        const handleStart = (e) => {
+            if (lockScreen.classList.contains('unlocked')) return;
+            isSwiping = true;
+            startY = e.clientY || e.touches?.[0]?.clientY;
+            lockScreen.style.transition = 'none';
+        };
+
+        const handleMove = (e) => {
+            if (!isSwiping) return;
+            const clientY = e.clientY || e.touches?.[0]?.clientY;
+            let diffY = startY - clientY;
+            if (diffY < 0) diffY = 0;
+            lockScreen.style.transform = `translateY(-${diffY}px)`;
+        };
+
+        const handleEnd = () => {
+            if (!isSwiping) return;
+            isSwiping = false;
+            const transformValue = lockScreen.style.transform;
+            const currentOffset = transformValue ? parseFloat(transformValue.replace('translateY(-', '').replace('px)', '')) : 0;
+            lockScreen.style.transition = 'transform 0.3s ease-out';
+
+            if (currentOffset > 100) {
+                lockScreen.style.transform = `translateY(-100%)`;
+                lockScreen.classList.add('unlocked');
+                setTimeout(() => {
+                    lockScreen.style.display = 'none';
+                    homeScreen.classList.add('active');
+                    showWhatsappNotification();
+                }, 300);
+            } else {
+                lockScreen.style.transform = 'translateY(0)';
+            }
+        };
+
+        function showWhatsappNotification() {
+            // Hanya tampilkan notifikasi jika percakapan belum selesai
+            if (!joanConversationCompleted) {
+                waNotification.classList.add('show');
+                homeScreen.classList.add('blurred');
+                notificationSound.play(); // Play the notification sound
+                setTimeout(() => {
+                    waNotification.classList.remove('show');
+                    homeScreen.classList.remove('blurred');
+                }, 4000);
+            }
+        }
+
+        function openWhatsappList() {
+            homeScreen.classList.remove('active');
+            whatsappList.classList.add('active');
+            homeScreen.classList.remove('blurred');
+            waNotification.classList.remove('show');
+            // Pastikan galeri, YouTube, Notebook, dan Musik tertutup jika terbuka
+            galleryOverlay.classList.remove('active');
+            photoViewerOverlay.classList.remove('active');
+            youtubeOverlay.classList.remove('active');
+            notebookOverlay.classList.remove('active');
+            noteDetailOverlay.classList.remove('active');
+            musicOverlay.classList.remove('active'); // Close Music App
+            if (!audioPlayer.paused) audioPlayer.pause(); // Pause music if playing
+        }
+
+        async function openWhatsappChat(contactName) {
+            whatsappList.classList.remove('active');
+            whatsappChat.classList.add('active');
+
+            // Set profil pic dan nama kontak di header chat
+            chatHeaderContactName.textContent = contactName;
+            chatHeaderProfilePic.src = contactProfiles[contactName] || "https://via.placeholder.com/40/000000/FFFFFF?text=P"; // Fallback jika tidak ada gambar profil
+
+            // Logika khusus untuk chat Joan
+            if (contactName === 'Joan' && !joanConversationCompleted) {
+                // Sembunyikan input chat normal, hanya tampilkan layout input
+                chatInputArea.style.display = 'flex';
+
+                // Hapus pesan "Halo uput" yang pertama (yang ada di HTML statis)
+                const initialStaticMessage = document.getElementById('joanInitialMessage');
+                if (initialStaticMessage) {
+                    initialStaticMessage.remove();
+                }
+
+                // Tambahkan pesan Joan "Halo uput" secara dinamis
+                const joanHelloMessage = document.createElement('div');
+                joanHelloMessage.classList.add('message', 'received');
+                joanHelloMessage.innerHTML = `<p>Halo uput</p><span class="timestamp">${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>`;
+                joanChatMessages.appendChild(joanHelloMessage);
+                joanChatMessages.scrollTop = joanChatMessages.scrollHeight;
+
+                // Tambahkan indikator "sedang mengetik..."
+                const typingIndicatorDiv = document.createElement('div');
+                typingIndicatorDiv.classList.add('typing-indicator');
+                typingIndicatorDiv.innerHTML = `Joan<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>`; // Teks "Joan" ditambahkan di sini
+                joanChatMessages.appendChild(typingIndicatorDiv);
+                joanChatMessages.scrollTop = joanChatMessages.scrollHeight;
+
+                await new Promise(resolve => setTimeout(() => {
+                    typingIndicatorDiv.remove(); // Hapus indikator mengetik
+                    resolve();
+                }, 2000)); // Tampilkan selama 2 detik
+
+                // Tambahkan pesan Joan "kamu mau tau nggak?"
+                const joanQuestionMessage = document.createElement('div');
+                joanQuestionMessage.classList.add('message', 'received');
+                joanQuestionMessage.innerHTML = `<p>kamu mau tau nggak?</p><span class="timestamp">${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>`;
+                joanChatMessages.appendChild(joanQuestionMessage);
+                joanChatMessages.scrollTop = joanChatMessages.scrollHeight;
+
+
+                // Tambahkan opsi balasan
+                const replyOptionsDiv = document.createElement('div');
+                replyOptionsDiv.classList.add('reply-options');
+                replyOptionsDiv.innerHTML = `
+                    <button id="replyYes">iyaaa joaaan</button>
+                    <button id="replyNo">g mls</button>
+                `;
+                joanChatMessages.appendChild(replyOptionsDiv);
+                joanChatMessages.scrollTop = joanChatMessages.scrollHeight;
+
+                document.getElementById('replyYes').addEventListener('click', async () => {
+                    replyOptionsDiv.remove(); // Hapus opsi
+                    sendUserMessage("iyaaa joaaan"); // Kirim balasan pengguna
+
+                    const messages = [
+                        { delay: 2000, type: 'typing' }, // 2 detik typing
+                        { delay: 0, text: 'Aku pernah bertanya pada diriku sendiri "kenapa aku mencintaimu?"' },
+                        { delay: 2000, type: 'typing' }, // 2 detik typing
+                        { delay: 0, text: 'Awalnya kupikir karena kamu baik. Tapi bukankah manusia bisa berubah?' },
+                        { delay: 2000, type: 'typing' }, // 2 detik typing
+                        { delay: 0, text: 'Kupikir, mungkin aku jatuh cinta karena caramu membuatku tertawa di hari paling berat. Tapi tawa itu pun kadang hilang.' },
+                        { delay: 2000, type: 'typing' }, // 2 detik typing
+                        { delay: 0, text: 'Lalu kupikir mungkin karena aku penasaran. Tapi sekarang aku sudah tahu semua kebiasaanmu yang aneh, caramu diam saat marah, atau bagaimana kamu terkadang melupakan hal hal kecil.' },
+                        { delay: 2000, type: 'typing' }, // 2 detik typing
+                        { delay: 0, text: 'Dan semakin aku mencari alasan, semakin aku sadar.' },
+                        { delay: 2000, type: 'typing' }, // 2 detik typing
+                        { delay: 0, text: 'Tidak ada satu pun alasan yang mampu merangkum rasa ini.' },
+                        { delay: 2000, type: 'typing' }, // 2 detik typing
+                        { delay: 0, text: 'Aku tidak mencintaimu karena kamu selalu baik karena kamu pun bisa salah.' },
+                        { delay: 2000, type: 'typing' }, // 2 detik typing
+                        { delay: 0, text: 'Aku mencintaimu karena kamu adalah kamu.' },
+                        { delay: 2000, type: 'typing' }, // 2 detik typing
+                        { delay: 0, text: 'Dengan cara dudukmu yang tenang, caramu bercerita yang terkadang berantakan, dan keputusanmu yang kadang membuatku ingin marah, tapi juga membuatku ingin memelukmu lebih lama. Kamu bukan definisi paling benar dari siapa yang pantas dicintai, tapi bagiku, kamu tetap rumah. Tempat aku ingin kembali, bahkan ketika hujan di dalam hati terasa terlalu deras. Aku tidak butuh alasan untuk tinggal. Karena kamu sendiri sudah cukup. Dengan semua kurang dan lebihmu, aku memilih untuk tetap di sini. Bersamamu, bukan karena kamu sempurna. Tapi karena tanpamu, rasanya ada yang hilang dan aku tak ingin menghilangkannya.' },
+                    ];
+
+                    for (const msg of messages) {
+                        if (msg.type === 'typing') {
+                            const typingIndicatorDiv = document.createElement('div');
+                            typingIndicatorDiv.classList.add('typing-indicator');
+                            typingIndicatorDiv.innerHTML = `<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>`;
+                            joanChatMessages.appendChild(typingIndicatorDiv);
+                            joanChatMessages.scrollTop = joanChatMessages.scrollHeight;
+                            await new Promise(resolve => setTimeout(() => {
+typingIndicatorDiv.remove();
+                                resolve();
+                            }, msg.delay)); // Hapus typing indicator setelah durasi delay
+                        } else if (msg.text) {
+                            const joanMessage = document.createElement('div');
+                            joanMessage.classList.add('message', 'received');
+                            joanMessage.innerHTML = `<p>${msg.text}</p><span class="timestamp">${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>`;
+                            joanChatMessages.appendChild(joanMessage);
+                            joanChatMessages.scrollTop = joanChatMessages.scrollHeight;
+                        }
+                    }
+
+                    // Balasan Uput setelah pesan panjang Joan
+                    await new Promise(resolve => setTimeout(resolve, 500)); // Delay sebelum Uput membalas
+                    sendUserMessage(":') et dah, alay bet dah lu.");
+
+                    // Joan membalas dengan stiker setelah balasan Uput
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Delay sebelum Joan membalas stiker
+                    const catSticker = document.createElement('img');
+                    catSticker.src = 'https://raw.githubusercontent.com/johanwirawan/tinaa/refs/heads/main/dee6df0d13c49db86f027f111062d8dc.gif'; // URL stiker kucingmu
+                    catSticker.alt = 'Stiker Kucing';
+                    catSticker.classList.add('sticker', 'received'); // Tambahkan class received agar posisi sesuai
+                    joanChatMessages.appendChild(catSticker);
+                    joanChatMessages.scrollTop = joanChatMessages.scrollHeight;
+
+                    // Tidak perlu mengubah display chatInputArea di sini, karena sudah flex
+                    joanConversationCompleted = true; // Set flag bahwa percakapan Joan selesai
+                });
+
+                document.getElementById('replyNo').addEventListener('click', async () => {
+                    replyOptionsDiv.remove(); // Hapus opsi
+                    sendUserMessage("g mls"); // Kirim balasan pengguna
+
+                    await new Promise(resolve => setTimeout(resolve, 500)); // Sedikit delay
+                    const joanReplyY = document.createElement('div');
+                    joanReplyY.classList.add('message', 'received');
+                    joanReplyY.innerHTML = `<p>y</p><span class="timestamp">${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>`;
+                    joanChatMessages.appendChild(joanReplyY);
+                    joanChatMessages.scrollTop = joanChatMessages.scrollHeight;
+
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Delay sebelum pesan blokir muncul
+                    const blockedMessage = document.createElement('div');
+                    blockedMessage.classList.add('blocked-message');
+                    blockedMessage.innerHTML = `Kontak ini memblokir Anda`;
+                    joanChatMessages.appendChild(blockedMessage);
+                    joanChatMessages.scrollTop = joanChatMessages.scrollHeight;
+                    chatInputArea.style.display = 'none'; // Sembunyikan input chat secara permanen
+                    joanConversationCompleted = true; // Set flag bahwa percakapan Joan selesai
+                });
+
+            } else if (contactName === 'Joan' && joanConversationCompleted) {
+                // Jika percakapan Joan sudah selesai, pastikan chat inputarea ditampilkan/disembunyikan sesuai alur terakhir
+                if (joanChatMessages.querySelector('.blocked-message')) {
+                    chatInputArea.style.display = 'none';
+                } else {
+                    chatInputArea.style.display = 'flex';
+                }
+            } else {
+                chatInputArea.style.display = 'flex'; // Pastikan input chat terlihat untuk chat lain
+            }
+        }
+
+        function sendUserMessage(messageText) {
+            const newMessageDiv = document.createElement('div');
+            newMessageDiv.classList.add('message', 'sent');
+            newMessageDiv.innerHTML = `<p>${messageText}</p><span class="timestamp">${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>`;
+            joanChatMessages.appendChild(newMessageDiv);
+            joanChatMessages.scrollTop = joanChatMessages.scrollHeight;
+        }
+
+        // Function to open Gallery
+        function openGallery() {
+            homeScreen.classList.remove('active');
+            whatsappList.classList.remove('active');
+            whatsappChat.classList.remove('active');
+            youtubeOverlay.classList.remove('active');
+            notebookOverlay.classList.remove('active');
+            noteDetailOverlay.classList.remove('active');
+            musicOverlay.classList.remove('active'); // Close Music App
+            if (!audioPlayer.paused) audioPlayer.pause(); // Pause music if playing
+            galleryOverlay.classList.add('active');
+            homeScreen.classList.remove('blurred');
+            waNotification.classList.remove('show');
+        }
+
+        // Function to populate gallery grid
+        function populateGallery() {
+            galleryGrid.innerHTML = ''; // Bersihkan konten sebelumnya
+            // Loop only up to 6 photos or the actual length if less than 6
+            const numberOfPhotosToShow = Math.min(photos.length, 6);
+            for (let i = 0; i < numberOfPhotosToShow; i++) {
+                const photoUrl = photos[i];
+                const img = document.createElement('img');
+                img.src = photoUrl;
+                img.classList.add('gallery-item');
+                img.addEventListener('click', () => openPhotoViewer(i)); // Pass index instead of URL
+                galleryGrid.appendChild(img);
+            }
+        }
+
+        // Function to open photo viewer
+        function openPhotoViewer(index) {
+            currentPhotoIndex = index;
+            galleryOverlay.classList.remove('active');
+            photoViewerOverlay.classList.add('active');
+            currentPhoto.src = photos [currentPhotoIndex];
+            updateTimeAndDate(); // Update timestamp di header viewer
+        }
+
+        // Function to handle swipe in photo viewer
+        function handleTouchStart(e) {
+            startX = e.touches?.[0]?.clientX;
+            isDragging = true;
+        }
+
+        function handleTouchMove(e) {
+            if (!isDragging || !startX) return;
+            const currentX = e.touches?.[0]?.clientX;
+            const diffX = startX - currentX;
+
+            // You can add visual cues based on the swipe distance if you want
+
+            // Throttle the changes to prevent rapid switching
+            if (Math.abs(diffX) > 50) {
+                if (diffX > 0) { // Swipe left - next image
+                    showNextPhoto();
+                } else { // Swipe right - previous image
+                    showPreviousPhoto();
+                }
+                startX = null; // Reset startX
+                isDragging = false;
+            }
+        }
+
+        function handleTouchEnd() {
+            isDragging = false;
+            startX = null;
+        }
+
+        function showNextPhoto() {
+            currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+            currentPhoto.src = photos [currentPhotoIndex];
+        }
+
+        function showPreviousPhoto() {
+            currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+            currentPhoto.src = photos [currentPhotoIndex];
+        }
+
+        // Functionality for the love button
+        function toggleLove() {
+            isLoved = !isLoved;
+            if (isLoved) {
+                loveButton.setAttribute('name', 'heart-sharp');
+            } else {
+                loveButton.setAttribute('name', 'heart-outline');
+            }
+            // In a real app, you would update the album data here
+        }
+
+        // Function to open YouTube
+        function openYoutube() {
+            homeScreen.classList.remove('active');
+            whatsappList.classList.remove('active');
+            whatsappChat.classList.remove('active');
+            galleryOverlay.classList.remove('active');
+            photoViewerOverlay.classList.remove('active');
+            notebookOverlay.classList.remove('active');
+            noteDetailOverlay.classList.remove('active');
+            musicOverlay.classList.remove('active'); // Close Music App
+            if (!audioPlayer.paused) audioPlayer.pause(); // Pause music if playing
+            homeScreen.classList.remove('blurred');
+            waNotification.classList.remove('show');
+
+            youtubeOverlay.classList.add('active');
+        }
+
+        // NEW: Function to open Notebook list
+        function openNotebook() {
+            homeScreen.classList.remove('active');
+            whatsappList.classList.remove('active');
+            whatsappChat.classList.remove('active');
+            galleryOverlay.classList.remove('active');
+            photoViewerOverlay.classList.remove('active');
+            youtubeOverlay.classList.remove('active');
+            musicOverlay.classList.remove('active'); // Close Music App
+            if (!audioPlayer.paused) audioPlayer.pause(); // Pause music if playing
+            homeScreen.classList.remove('blurred');
+            waNotification.classList.remove('show');
+
+            notebookOverlay.classList.add('active');
+            populateNotes(); // Call function to populate notes
+        }
+
+        // NEW: Function to populate notes list
+        function populateNotes() {
+            noteList.innerHTML = ''; // Clear previous notes
+            notes.forEach((note, index) => {
+                const noteItem = document.createElement('div');
+                noteItem.classList.add('note-item');
+                noteItem.innerHTML = `
+                    <div class="note-title">${note.title}</div>
+                    <div class="note-preview">${note.content.substring(0, 50)}...</div>
+                    <div class="note-date">${note.date}</div>
+                `;
+                noteItem.addEventListener('click', () => openNoteDetail(index));
+                noteList.appendChild(noteItem);
+            });
+        }
+
+        // NEW: Function to open note detail
+        function openNoteDetail(index) {
+            const note = notes[index];
+            noteDetailTitle.textContent = note.title;
+            noteDetailTitleHeader.textContent = note.title; // Set header title as well
+            noteDetailContent.textContent = note.content;
+
+            notebookOverlay.classList.remove('active');
+            noteDetailOverlay.classList.add('active');
+        }
+
+        // NEW: Music App Functions
+        function openMusicApp() {
+            homeScreen.classList.remove('active');
+            whatsappList.classList.remove('active');
+            whatsappChat.classList.remove('active');
+            galleryOverlay.classList.remove('active');
+            photoViewerOverlay.classList.remove('active');
+            youtubeOverlay.classList.remove('active');
+            notebookOverlay.classList.remove('active');
+            noteDetailOverlay.classList.remove('active');
+            homeScreen.classList.remove('blurred');
+            waNotification.classList.remove('show');
+
+            musicOverlay.classList.add('active');
+            loadMusicList();
+        }
+
+        function loadMusicList() {
+            musicListContent.innerHTML = ''; // Clear existing list
+            musicData.forEach((music, index) => {
+                const musicItem = document.createElement('div');
+                musicItem.classList.add('music-item');
+                musicItem.dataset.index = index;
+
+                musicItem.innerHTML = `
+                    <img src="${music.albumArt}" alt="Album Art">
+                    <div class="music-details-text">
+                        <div class="music-title">${music.title}</div>
+                        <div class="music-artist">${music.artist}</div>
+                    </div>
+                `;
+                musicItem.addEventListener('click', () => playMusic(index));
+                musicListContent.appendChild(musicItem);
+            });
+        }
+
+        function playMusic(index) {
+            currentPlayingIndex = index;
+            const music = musicData[index];
+            audioPlayer.src = music.src;
+            nowPlayingTitle.textContent = music.title;
+            nowPlayingArtist.textContent = music.artist;
+            nowPlayingAlbumArt.src = music.albumArt;
+            audioPlayer.play();
+            playPauseButton.classList.remove('play-icon');
+            playPauseButton.classList.add('pause-icon');
+        }
+
+        playPauseButton.addEventListener('click', () => {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                playPauseButton.classList.remove('play-icon');
+                playPauseButton.classList.add('pause-icon');
+            } else {
+                audioPlayer.pause();
+                playPauseButton.classList.remove('pause-icon');
+                playPauseButton.classList.add('play-icon');
+            }
+        });
+
+        // Play next song when current one ends
+        audioPlayer.addEventListener('ended', () => {
+            const nextIndex = (currentPlayingIndex + 1) % musicData.length;
+            playMusic(nextIndex);
+        });
+
+        // Event listener untuk notifikasi WhatsApp
+        waNotification.addEventListener('click', () => {
+            openWhatsappList();
+            setTimeout(() => {
+                openWhatsappChat('Joan');
+            }, 300);
+        });
+
+        // Event listener untuk ikon WhatsApp di Home Screen
+        whatsappAppIcon.addEventListener('click', () => {
+            openWhatsappList();
+        });
+
+        // Event listener untuk tombol kembali dari detail chat ke daftar chat
+        backToListButton.addEventListener('click', () => {
+            whatsappChat.classList.remove('active');
+            whatsappList.classList.add('active');
+            // Saat kembali ke daftar chat, bersihkan elemen dinamis agar tidak duplikat jika chat Joan dibuka lagi
+            // Kecuali pesan awal "Halo uput" dan separator
+            const dynamicElements = joanChatMessages.querySelectorAll('.typing-indicator, .reply-options, .blocked-message, .message.received:not(#joanInitialMessage), .message.sent, .sticker');
+            dynamicElements.forEach(el => el.remove());
+
+            // Atur ulang input chat area ke tampilan default (keyboard realistik)
+            chatInputArea.style.display = 'flex';
+        });
+
+        // Event listener untuk klik item chat di daftar (misal Joan)
+        document.querySelectorAll('.chat-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const contactName = item.getAttribute('data-contact');
+                openWhatsappChat(contactName);
+            });
+        });
+
+        document.querySelector('.whatsapp-header .edit-button').addEventListener('click', () => {
+             whatsappList.classList.remove('active');
+             homeScreen.classList.add('active');
+        });
+
+        // Event listener untuk ikon Galeri di Home Screen
+        galleryAppIcon.addEventListener('click', () => {
+            openGallery();
+        });
+
+        // Event listener untuk tombol kembali dari Galeri ke Home Screen
+        galleryBackToHomeButton.addEventListener('click', () => {
+            galleryOverlay.classList.remove('active');
+            homeScreen.classList.add('active');
+        });
+
+        // Event listener untuk tombol kembali dari Photo Viewer ke Galeri
+        photoViewerBackToGalleryButton.addEventListener('click', () => {
+            photoViewerOverlay.classList.remove('active');
+            galleryOverlay.classList.add('active');
+        });
+
+        // Event listeners for swipe gesture on photo viewer
+        photoViewerOverlay.addEventListener('touchstart', handleTouchStart);
+        photoViewerOverlay.addEventListener('touchmove', handleTouchMove);
+        photoViewerOverlay.addEventListener('touchend', handleTouchEnd);
+        photoViewerOverlay.addEventListener('touchcancel', handleTouchEnd);
+
+        // Event listener for the love button
+        loveButton.addEventListener('click', toggleLove);
+
+        // Event listener untuk ikon YouTube di Home Screen
+        youtubeAppIcon.addEventListener('click', () => {
+            openYoutube();
+        });
+
+        // Event listener untuk tombol kembali dari YouTube ke Home Screen
+        youtubeBackToHomeButton.addEventListener('click', () => {
+            youtubeOverlay.classList.remove('active');
+            homeScreen.classList.add('active');
+        });
+
+        // NEW: Event listener untuk ikon Notebook
+        notebookAppIcon.addEventListener('click', () => {
+            openNotebook();
+        });
+
+        // NEW: Event listener untuk tombol kembali dari Notebook ke Home Screen
+        notebookBackToHomeButton.addEventListener('click', () => {
+            notebookOverlay.classList.remove('active');
+            homeScreen.classList.add('active');
+        });
+
+        // NEW: Event listener untuk tombol kembali dari Detail Catatan ke Daftar Catatan
+        backToNoteListButton.addEventListener('click', () => {
+            noteDetailOverlay.classList.remove('active');
+            notebookOverlay.classList.add('active');
+        });
+
+        // NEW: Event listener untuk ikon Musik (di Home Screen)
+        if (musicAppIcon) {
+            musicAppIcon.addEventListener('click', () => {
+                openMusicApp();
+            });
+        }
+
+        // NEW: Event listener untuk tombol kembali dari Musik ke Home Screen
+        musicBackToHomeButton.addEventListener('click', () => {
+            musicOverlay.classList.remove('active');
+            homeScreen.classList.add('active');
+            if (!audioPlayer.paused) audioPlayer.pause(); // Pause music when leaving app
+            playPauseButton.classList.remove('pause-icon');
+            playPauseButton.classList.add('play-icon');
+            nowPlayingTitle.textContent = "Tidak Ada Musik Diputar";
+            nowPlayingArtist.textContent = "";
+            nowPlayingAlbumArt.src = "https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/images%20(16).jpeg"; // Reset to default album art
+        });
+
+        // Tambahkan event listener untuk swipe lock screen
+        lockScreen.addEventListener('mousedown', handleStart);
+        lockScreen.addEventListener('touchstart', handleStart);
+
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('touchmove', handleMove);
+
+        window.addEventListener('mouseup', handleEnd);
+        window.addEventListener('touchend', handleEnd);
+        window.addEventListener('touchcancel', handleEnd);
+
+        // Update setiap detik
+        setInterval(updateTimeAndDate, 1000);
+        // Panggil saat pertama kali dimuat
+        updateTimeAndDate();
+        populateGallery(); // Pastikan galeri terisi saat pertama kali dimuat
+        populateNotes(); // Populate notes when the script loads initially
+    </script>
+
+</body>
+</html>
